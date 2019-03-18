@@ -1,5 +1,6 @@
 // Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
 
+#include "actor.hpp"
 #include "characterrelation.hpp"
 
 bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject, CharacterRelation& relation)

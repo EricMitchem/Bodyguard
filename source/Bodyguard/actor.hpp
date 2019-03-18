@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "API/ARK/Actor.h"
+#include "API/ARK/Ark.h"
 
 bool IsCharacter(AActor* actor);
 bool IsDino(AActor* actor);
