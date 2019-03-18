@@ -1,0 +1,6 @@
+{
+  "FullName":"Bodyguard",
+  "Description":"Control the dragging and inventory access of players and dinos",
+  "Version":0.1,
+  "MinApiVersion":3.0
+}
