@@ -1,0 +1,30 @@
+{
+    "Admins": {
+        "DeadDinoDragging": true,
+        "DeadDinoInventory": true,
+        "DeadPlayerDragging": true,
+        "DeadPlayerInventory": true,
+        "OfflinePlayerDragging": true,
+        "OfflinePlayerInventory": true,
+        "TranqdPlayerDragging": true,
+        "TranqdPlayerInventory": true
+    },
+
+    "CrashGuard": {
+        "Enable": true,
+        "PermanentImmunity": false,
+        "OfflineImmunitySeconds": 1200,
+        "ReconnectImmunitySeconds": 300
+    },
+	
+	"Players" : {
+		"DeadDinoDragging" : "tribe",
+		"DeadDinoInventory" : "tribe",
+		"DeadPlayerDragging" : "tribe",
+		"DeadPlayerInventory" : "tribe",
+		"OfflinePlayerDragging" : "tribe",
+		"OfflinePlayerInventory" : "tribe",
+		"TranqdPlayerDragging" : "tribe",
+		"TranqdPlayerInventory" : "tribe"
+	}
+}
