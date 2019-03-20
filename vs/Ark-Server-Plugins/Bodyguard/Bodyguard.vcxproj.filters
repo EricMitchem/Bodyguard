@@ -25,9 +25,15 @@
     <ClCompile Include="..\..\..\source\Bodyguard\characterrelation.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Bodyguard\config.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\resources\Bodyguard\PluginInfo.json">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="..\..\..\resources\Bodyguard\config.json">
       <Filter>resources</Filter>
     </None>
   </ItemGroup>
@@ -42,6 +48,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\Bodyguard\characterrelation.hpp">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\Bodyguard\config.hpp">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
