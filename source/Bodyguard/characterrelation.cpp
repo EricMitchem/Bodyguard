@@ -6,7 +6,7 @@
 bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject, CharacterRelation& relation)
 {
     if(actor == nullptr || subject == nullptr) {
-        // To Do: log
+        Log::GetLog()->error("GetPlayerSubjectRelation: actor or subject is null");
         return false;
     }
 
@@ -25,7 +25,7 @@ bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subjec
         relation.is_owner = subject_owner_id ? actor_id == subject_owner_id : actor_team == subject_team;
     }
     else {
-        // To Do: log
+        Log::GetLog()->warn("GetPlayerSubjectRelation: Unknown subject");
         return false;
     }
 

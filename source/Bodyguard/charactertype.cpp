@@ -6,7 +6,7 @@
 bool GetCharacterType(APrimalCharacter* character, CharacterType& type)
 {
     if(character == nullptr) {
-        // To Do: log
+        Log::GetLog()->error("GetCharacterType: character cannot be null");
         return false;
     }
 
@@ -23,7 +23,7 @@ bool GetCharacterType(APrimalCharacter* character, CharacterType& type)
             type = CharacterType::TranqdPlayer;
         }
         else {
-            // To Do: log
+            Log::GetLog()->warn("GetCharacterType: unknown player type");
             return false;
         }
     }
@@ -31,7 +31,7 @@ bool GetCharacterType(APrimalCharacter* character, CharacterType& type)
         type = CharacterType::DeadDino;
     }
     else {
-        // To Do: log
+        Log::GetLog()->warn("GetCharacterType: unknown character type");
         return false;
     }
 

@@ -34,7 +34,173 @@ const json Config::Default = {
     }}
 };
 
-json Config::Impl = {};
+json Config::Impl = Config::Default;
+
+Config::Var Config::GetAdminVarForDragging(const CharacterType& type)
+{
+    switch(type) {
+    case CharacterType::DeadDino:
+        return Var::Admins_DeadDinoDragging;
+
+    case CharacterType::DeadPlayer:
+        return Var::Admins_DeadPlayerDragging;
+
+    case CharacterType::OfflinePlayer:
+        return Var::Admins_OfflinePlayerDragging;
+
+    case CharacterType::TranqdPlayer:
+        return Var::Admins_TranqdPlayerDragging;
+    }
+}
+
+Config::Var Config::GetAdminVarForInventory(const CharacterType& type)
+{
+    switch(type) {
+    case CharacterType::DeadDino:
+        return Var::Admins_DeadDinoInventory;
+
+    case CharacterType::DeadPlayer:
+        return Var::Admins_DeadPlayerInventory;
+
+    case CharacterType::OfflinePlayer:
+        return Var::Admins_OfflinePlayerInventory;
+
+    case CharacterType::TranqdPlayer:
+        return Var::Admins_TranqdPlayerInventory;
+    }
+}
+
+Config::Var Config::GetVarForDragging(const CharacterType& type)
+{
+    switch(type) {
+    case CharacterType::DeadDino:
+        return Var::Players_DeadDinoDragging;
+
+    case CharacterType::DeadPlayer:
+        return Var::Players_DeadPlayerDragging;
+
+    case CharacterType::OfflinePlayer:
+        return Var::Players_OfflinePlayerDragging;
+
+    case CharacterType::TranqdPlayer:
+        return Var::Players_TranqdPlayerDragging;
+    }
+}
+
+Config::Var Config::GetVarForInventory(const CharacterType& type)
+{
+    switch(type) {
+    case CharacterType::DeadDino:
+        return Var::Players_DeadDinoInventory;
+
+    case CharacterType::DeadPlayer:
+        return Var::Players_DeadPlayerInventory;
+
+    case CharacterType::OfflinePlayer:
+        return Var::Players_OfflinePlayerInventory;
+
+    case CharacterType::TranqdPlayer:
+        return Var::Players_TranqdPlayerInventory;
+    }
+}
+
+bool Config::GetAccessLevelForVar(Config::Var var, AccessLevel& access_level)
+{
+    std::string var_str;
+
+    switch(var) {
+    case Var::Players_DeadDinoDragging:
+        var_str = "DeadDinoDragging";
+        break;
+
+    case Var::Players_DeadDinoInventory:
+        var_str = "DeadDinoInventory";
+        break;
+
+    case Var::Players_DeadPlayerDragging:
+        var_str = "DeadPlayerDragging";
+        break;
+
+    case Var::Players_DeadPlayerInventory:
+        var_str = "DeadPlayerInventory";
+        break;
+
+    case Var::Players_OfflinePlayerDragging:
+        var_str = "OfflinePlayerDragging";
+        break;
+
+    case Var::Players_OfflinePlayerInventory:
+        var_str = "OfflinePlayerInventory";
+        break;
+
+    case Var::Players_TranqdPlayerDragging:
+        var_str = "TranqdPlayerDragging";
+        break;
+
+    case Var::Players_TranqdPlayerInventory:
+        var_str = "TranqdPlayerInventory";
+        break;
+
+    default:
+        Log::GetLog()->error("GetAccessLevelForVar: Invalid config var");
+        return false;
+    }
+
+    const auto access_str = Config::Impl["Players"][var_str].get<std::string>();
+
+    if(StringToAccessLevel(access_str, access_level) == false) {
+        Log::GetLog()->error("GetAccessLevelForVar: failed to translate from '{}' to access level", access_str);
+        return false;
+    }
+
+    return true;
+}
+
+bool Config::GetBoolForAdminVar(Config::Var var, bool& admin_bool)
+{
+    std::string var_str;
+
+    switch(var) {
+    case Var::Admins_DeadDinoDragging:
+        var_str = "DeadDinoDragging";
+        break;
+
+    case Var::Admins_DeadDinoInventory:
+        var_str = "DeadDinoInventory";
+        break;
+
+    case Var::Admins_DeadPlayerDragging:
+        var_str = "DeadPlayerDragging";
+        break;
+
+    case Var::Admins_DeadPlayerInventory:
+        var_str = "DeadPlayerInventory";
+        break;
+
+    case Var::Admins_OfflinePlayerDragging:
+        var_str = "OfflinePlayerDragging";
+        break;
+
+    case Var::Admins_OfflinePlayerInventory:
+        var_str = "OfflinePlayerInventory";
+        break;
+
+    case Var::Admins_TranqdPlayerDragging:
+        var_str = "TranqdPlayerDragging";
+        break;
+
+    case Var::Admins_TranqdPlayerInventory:
+        var_str = "TranqdPlayerInventory";
+        break;
+
+    default:
+        Log::GetLog()->error("GetBoolForAdminVar: Invalid config var");
+        return false;
+    }
+
+    admin_bool = Config::Impl["Admins"][var_str].get<bool>();
+    return true;
+}
 
 void Config::ReadFromFile()
 {
@@ -68,6 +234,7 @@ void Config::WriteDefaultConfigToFile()
     std::ofstream out_file(config_path);
 
     if(out_file.is_open() == true) {
+        // To Do: Can this throw?
         out_file << std::setw(4) << Config::Default;
     }
 }
@@ -228,7 +395,6 @@ bool Config::IsValid(const json& config)
         return false;
     }
 
-    // To Do: validate strings
     if(const auto players_it = config.find("Players"); players_it != config.cend()) {
         if(players_it->type() != json::value_t::object) {
             Log::GetLog()->error("'Players' value in json config isn't a valid object");
@@ -321,6 +487,17 @@ bool Config::IsValid(const json& config)
         else {
             Log::GetLog()->error("Failed to find 'TranqdPlayerInventory' key in 'Players' object");
             return false;
+        }
+
+        AccessLevel access_level;
+
+        for(auto& e : players_it->items()) {
+            const auto access_str = e.value().get<std::string>();
+
+            if(StringToAccessLevel(access_str, access_level) == false) {
+                Log::GetLog()->error("IsValid: failed to translate from '{}' to access level for key '{}'", access_str, e.key());
+                return false;
+            }
         }
     }
     else {

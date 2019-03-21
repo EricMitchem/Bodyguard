@@ -28,11 +28,10 @@ bool StringToAccessLevel(const std::string& ascii_str, AccessLevel& access_level
 
     std::string lowercase_str;
 
+    lowercase_str.resize(ascii_str.size());
     std::transform(ascii_str.cbegin(), ascii_str.cend(), lowercase_str.begin(), ::tolower);
 
-    auto it = Impl.find(lowercase_str);
-
-    if(it != Impl.end()) {
+    if(const auto it = Impl.find(lowercase_str); it != Impl.cend()) {
         access_level = it->second;
         return true;
     }
