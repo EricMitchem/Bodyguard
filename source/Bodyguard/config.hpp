@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <optional>
 #include "accesslevel.hpp"
 #include "charactertype.hpp"
 #include "json.hpp"
@@ -39,8 +40,8 @@ public:
     static Var GetAdminVarForInventory(const CharacterType& type);
     static Var GetVarForDragging(const CharacterType& type);
     static Var GetVarForInventory(const CharacterType& type);
-    static bool GetAccessLevelForVar(Var var, AccessLevel& access_level);
-    static bool GetBoolForAdminVar(Var var, bool& admin_bool);
+    static std::optional<AccessLevel> GetAccessLevelForVar(Var var);
+    static std::optional<bool> GetBoolForAdminVar(Var var);
     static void ReadFromFile();
     static void WriteDefaultConfigToFile();
 

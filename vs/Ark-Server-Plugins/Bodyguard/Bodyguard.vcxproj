@@ -95,10 +95,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\source\Bodyguard\accesslevel.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\actor.cpp" />
+    <ClCompile Include="..\..\..\source\Bodyguard\bodydragging.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\bodyguard.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\characterrelation.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\charactertype.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\config.cpp" />
+    <ClCompile Include="..\..\..\source\Bodyguard\inventoryaccess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\resources\Bodyguard\config.json" />
@@ -107,9 +109,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\source\Bodyguard\accesslevel.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\actor.hpp" />
+    <ClInclude Include="..\..\..\source\Bodyguard\bodydragging.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\characterrelation.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\charactertype.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\config.hpp" />
+    <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

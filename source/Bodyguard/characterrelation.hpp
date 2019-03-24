@@ -2,7 +2,10 @@
 
 #pragma once
 
-#include "API/ARK/Ark.h"
+#include <optional>
+
+struct APrimalCharacter;
+struct AShooterCharacter;
 
 struct CharacterRelation
 {
@@ -11,4 +14,4 @@ struct CharacterRelation
     bool is_alliance;
 };
 
-bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject, CharacterRelation& relation);
+std::optional<CharacterRelation> GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject);

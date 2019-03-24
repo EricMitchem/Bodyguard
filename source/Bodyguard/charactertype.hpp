@@ -2,7 +2,9 @@
 
 #pragma once
 
-#include "API/ARK/Ark.h"
+#include <optional>
+
+struct APrimalCharacter;
 
 enum class CharacterType
 {
@@ -12,4 +14,4 @@ enum class CharacterType
     TranqdPlayer
 };
 
-bool GetCharacterType(APrimalCharacter* character, CharacterType& type);
+std::optional<CharacterType> GetCharacterType(APrimalCharacter* subject);

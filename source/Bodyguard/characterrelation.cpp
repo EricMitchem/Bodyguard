@@ -1,18 +1,25 @@
 // Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
 
+#include "API/ARK/Ark.h"
 #include "actor.hpp"
 #include "characterrelation.hpp"
 
-bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject, CharacterRelation& relation)
+std::optional<CharacterRelation> GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subject)
 {
-    if(actor == nullptr || subject == nullptr) {
-        Log::GetLog()->error("GetPlayerSubjectRelation: actor or subject is null");
-        return false;
+    if(actor == nullptr) {
+        Log::GetLog()->error("{}:{}: actor is null", __func__, __LINE__);
+        return std::nullopt;
+    }
+
+    if(subject == nullptr) {
+        Log::GetLog()->error("{}:{}: subject is null", __func__, __LINE__);
+        return std::nullopt;
     }
 
     const auto actor_id = ArkApi::GetApiUtils().GetPlayerID(actor);
     const auto actor_team = actor->TargetingTeamField();
     const auto subject_team = subject->TargetingTeamField();
+    CharacterRelation relation;
 
     if(IsPlayer(subject)) {
         const auto subject_id = ArkApi::GetApiUtils().GetPlayerID(subject);
@@ -25,11 +32,11 @@ bool GetPlayerSubjectRelation(AShooterCharacter* actor, APrimalCharacter* subjec
         relation.is_owner = subject_owner_id ? actor_id == subject_owner_id : actor_team == subject_team;
     }
     else {
-        Log::GetLog()->warn("GetPlayerSubjectRelation: Unknown subject");
-        return false;
+        Log::GetLog()->error("{}:{}: Subject isn't a player or dino", __func__, __LINE__);
+        return std::nullopt;
     }
 
     relation.is_tribe = actor_team == subject_team;
     relation.is_alliance = ArkApi::GetApiUtils().GetShooterGameMode()->AreTribesAllied(actor_team, subject_team);
-    return true;
+    return relation;
 }

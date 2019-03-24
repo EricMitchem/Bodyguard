@@ -1,39 +1,50 @@
 // Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
 
+#include "API/ARK/Ark.h"
 #include "actor.hpp"
 #include "charactertype.hpp"
 
-bool GetCharacterType(APrimalCharacter* character, CharacterType& type)
+std::optional<CharacterType> GetCharacterType(APrimalCharacter* subject)
 {
-    if(character == nullptr) {
-        Log::GetLog()->error("GetCharacterType: character cannot be null");
-        return false;
+    if(subject == nullptr) {
+        Log::GetLog()->error("{}:{}: subject is null", __func__, __LINE__);
+        return std::nullopt;
     }
 
-    if(IsPlayer(character)) {
-        const auto player = AsPlayer(character);
+    CharacterType subject_type;
 
-        if(player->bIsDead().Get() == true) {
-            type = CharacterType::DeadPlayer;
+    if(IsPlayer(subject)) {
+        const auto player = AsPlayer(subject);
+
+        if(player->bIsDead()() == true) {
+            subject_type = CharacterType::DeadPlayer;
         }
-        else if(player->bIsSleeping().Get() == true) {
-            type = CharacterType::OfflinePlayer;
+        else if(player->bIsSleeping()() == true) {
+            subject_type = CharacterType::OfflinePlayer;
         }
         else if(player->IsConscious() == false) {
-            type = CharacterType::TranqdPlayer;
+            subject_type = CharacterType::TranqdPlayer;
         }
         else {
-            Log::GetLog()->warn("GetCharacterType: unknown player type");
-            return false;
+            // Player isn't dead, offline, or tranqd
+            return std::nullopt;
         }
     }
-    else if(IsDino(character)) {
-        type = CharacterType::DeadDino;
+    else if(IsDino(subject)) {
+        const auto dino = AsDino(subject);
+
+        if(dino->bIsDead()() == true) {
+            subject_type = CharacterType::DeadDino;
+        }
+        else {
+            Log::GetLog()->error("{}:{}: dino isn't dead", __func__, __LINE__);
+            return std::nullopt;
+        }
     }
     else {
-        Log::GetLog()->warn("GetCharacterType: unknown character type");
-        return false;
+        Log::GetLog()->error("{}:{}: subject isn't a player or dino", __func__, __LINE__);
+        return std::nullopt;
     }
 
-    return true;
+    return subject_type;
 }

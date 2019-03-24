@@ -5,9 +5,9 @@
 #include <map>
 #include "accesslevel.hpp"
 
-std::string AccessLevelToString(AccessLevel access_level)
+std::string GetStringFromAccessLevel(AccessLevel access_level)
 {
-    static std::map<AccessLevel, std::string> Impl = {
+    static const std::map<AccessLevel, std::string> Impl = {
         {AccessLevel::Owner, "owner"},
         {AccessLevel::Tribe, "tribe"},
         {AccessLevel::Alliance, "alliance"},
@@ -17,9 +17,9 @@ std::string AccessLevelToString(AccessLevel access_level)
     return Impl.find(access_level)->second;
 }
 
-bool StringToAccessLevel(const std::string& ascii_str, AccessLevel& access_level)
+std::optional<AccessLevel> GetAccessLevelFromString(const std::string& ascii_str)
 {
-    static std::map<std::string, AccessLevel> Impl = {
+    static const std::map<std::string, AccessLevel> Impl = {
         {"owner", AccessLevel::Owner},
         {"tribe", AccessLevel::Tribe},
         {"alliance", AccessLevel::Alliance},
@@ -32,9 +32,8 @@ bool StringToAccessLevel(const std::string& ascii_str, AccessLevel& access_level
     std::transform(ascii_str.cbegin(), ascii_str.cend(), lowercase_str.begin(), ::tolower);
 
     if(const auto it = Impl.find(lowercase_str); it != Impl.cend()) {
-        access_level = it->second;
-        return true;
+        return it->second;
     }
 
-    return false;
+    return std::nullopt;
 }

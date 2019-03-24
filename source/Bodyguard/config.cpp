@@ -104,7 +104,7 @@ Config::Var Config::GetVarForInventory(const CharacterType& type)
     }
 }
 
-bool Config::GetAccessLevelForVar(Config::Var var, AccessLevel& access_level)
+std::optional<AccessLevel> Config::GetAccessLevelForVar(Config::Var var)
 {
     std::string var_str;
 
@@ -142,21 +142,21 @@ bool Config::GetAccessLevelForVar(Config::Var var, AccessLevel& access_level)
         break;
 
     default:
-        Log::GetLog()->error("GetAccessLevelForVar: Invalid config var");
-        return false;
+        Log::GetLog()->error("{}:{}: invalid config var", __func__, __LINE__);
+        return std::nullopt;
     }
 
     const auto access_str = Config::Impl["Players"][var_str].get<std::string>();
+    const auto access_level_opt = GetAccessLevelFromString(access_str);
 
-    if(StringToAccessLevel(access_str, access_level) == false) {
-        Log::GetLog()->error("GetAccessLevelForVar: failed to translate from '{}' to access level", access_str);
-        return false;
+    if(access_level_opt.has_value() == false) {
+        Log::GetLog()->error("{}:{}: failed to translate from '{}' to access level", __func__, __LINE__, access_str);
     }
 
-    return true;
+    return access_level_opt;
 }
 
-bool Config::GetBoolForAdminVar(Config::Var var, bool& admin_bool)
+std::optional<bool> Config::GetBoolForAdminVar(Config::Var var)
 {
     std::string var_str;
 
@@ -194,12 +194,11 @@ bool Config::GetBoolForAdminVar(Config::Var var, bool& admin_bool)
         break;
 
     default:
-        Log::GetLog()->error("GetBoolForAdminVar: Invalid config var");
-        return false;
+        Log::GetLog()->error("{}:{}: invalid config var", __func__, __LINE__);
+        return std::nullopt;
     }
 
-    admin_bool = Config::Impl["Admins"][var_str].get<bool>();
-    return true;
+    return Config::Impl["Admins"][var_str].get<bool>();
 }
 
 void Config::ReadFromFile()
@@ -208,34 +207,35 @@ void Config::ReadFromFile()
     std::ifstream in_file(config_path);
 
     if(in_file.is_open() == false) {
-        Log::GetLog()->error("Couldn't open config.json. Using default config");
+        Log::GetLog()->error("{}:{}: couldn't open config.json. Using default config", __func__, __LINE__);
+
         Config::Impl = Config::Default;
     }
     else {
         json config;
 
-        // To Do: Can this throw?
         in_file >> config;
 
         if(IsValid(config)) {
             Config::Impl = config;
         }
         else {
-            Log::GetLog()->error("Config failed validation. Using default config");
+            Log::GetLog()->error("{}:{}: config failed validation. Using default config", __func__, __LINE__);
             Config::Impl = Config::Default;
         }
     }
 }
 
-// To Do: Command to write default config to file
 void Config::WriteDefaultConfigToFile()
 {
     const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Bodyguard/config.json";
     std::ofstream out_file(config_path);
 
     if(out_file.is_open() == true) {
-        // To Do: Can this throw?
         out_file << std::setw(4) << Config::Default;
+    }
+    else {
+        Log::GetLog()->error("{}:{}: failed to open config file for writing", __func__, __LINE__);
     }
 }
 
@@ -243,265 +243,264 @@ bool Config::IsValid(const json& config)
 {
     if(const auto admins_it = config.find("Admins"); admins_it != config.cend()) {
         if(admins_it->type() != json::value_t::object) {
-            Log::GetLog()->error("'Admins' value in json config isn't a valid object");
+            Log::GetLog()->error("{}:{}: 'Admins' value in json config isn't a valid object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ddd_it = admins_it->find("DeadDinoDragging"); ddd_it != admins_it->cend()) {
             if(ddd_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'DeadDinoDragging' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'DeadDinoDragging' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadDinoDragging' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadDinoDragging' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ddi_it = admins_it->find("DeadDinoInventory"); ddi_it != admins_it->cend()) {
             if(ddi_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'DeadDinoInventory' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'DeadDinoInventory' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadDinoInventory' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadDinoInventory' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto dpd_it = admins_it->find("DeadPlayerDragging"); dpd_it != admins_it->cend()) {
             if(dpd_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'DeadPlayerDragging' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'DeadPlayerDragging' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadPlayerDragging' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadPlayerDragging' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto dpi_it = admins_it->find("DeadPlayerInventory"); dpi_it != admins_it->cend()) {
             if(dpi_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'DeadPlayerInventory' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'DeadPlayerInventory' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadPlayerInventory' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadPlayerInventory' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto opd_it = admins_it->find("OfflinePlayerDragging"); opd_it != admins_it->cend()) {
             if(opd_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'OfflinePlayerDragging' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'OfflinePlayerDragging' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'OfflinePlayerDragging' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'OfflinePlayerDragging' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto opi_it = admins_it->find("OfflinePlayerInventory"); opi_it != admins_it->cend()) {
             if(opi_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'OfflinePlayerInventory' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'OfflinePlayerInventory' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'OfflinePlayerInventory' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'OfflinePlayerInventory' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto tpd_it = admins_it->find("TranqdPlayerDragging"); tpd_it != admins_it->cend()) {
             if(tpd_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'TranqdPlayerDragging' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'TranqdPlayerDragging' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'TranqdPlayerDragging' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'TranqdPlayerDragging' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto tpi_it = admins_it->find("TranqdPlayerInventory"); tpi_it != admins_it->cend()) {
             if(tpi_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'TranqdPlayerInventory' value in 'Admins' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'TranqdPlayerInventory' value in 'Admins' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'TranqdPlayerInventory' key in 'Admins' object");
+            Log::GetLog()->error("{}:{}: failed to find 'TranqdPlayerInventory' key in 'Admins' object", __func__, __LINE__);
             return false;
         }
     }
     else {
-        Log::GetLog()->error("Failed to find 'Admins' key in json config");
+        Log::GetLog()->error("{}:{}: failed to find 'Admins' key in json config", __func__, __LINE__);
         return false;
     }
 
     if(const auto crashguard_it = config.find("CrashGuard"); crashguard_it != config.cend()) {
         if(crashguard_it->type() != json::value_t::object) {
-            Log::GetLog()->error("'CrashGuard' value in json config isn't a valid object");
+            Log::GetLog()->error("{}:{}: 'CrashGuard' value in json config isn't a valid object", __func__, __LINE__);
             return false;
         }
 
         if(const auto enable_it = crashguard_it->find("Enable"); enable_it != crashguard_it->cend()) {
             if(enable_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'Enable' value in 'CrashGuard' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'Enable' value in 'CrashGuard' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'Enable' key in 'CrashGuard' object");
+            Log::GetLog()->error("{}:{}: failed to find 'Enable' key in 'CrashGuard' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto pi_it = crashguard_it->find("PermanentImmunity"); pi_it != crashguard_it->cend()) {
             if(pi_it->type() != json::value_t::boolean) {
-                Log::GetLog()->error("'PermanentImmunity' value in 'CrashGuard' object isn't a boolean");
+                Log::GetLog()->error("{}:{}: 'PermanentImmunity' value in 'CrashGuard' object isn't a boolean", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'PermanentImmunity' key in 'CrashGuard' object");
+            Log::GetLog()->error("{}:{}: failed to find 'PermanentImmunity' key in 'CrashGuard' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ois_it = crashguard_it->find("OfflineImmunitySeconds"); ois_it != crashguard_it->cend()) {
             if(ois_it->type() != json::value_t::number_unsigned) {
-                Log::GetLog()->error("'OfflineImmunitySeconds' value in 'CrashGuard' object isn't an unsigned integer");
+                Log::GetLog()->error("{}:{}: 'OfflineImmunitySeconds' value in 'CrashGuard' object isn't an unsigned integer", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'OfflineImmunitySeconds' key in 'CrashGuard' object");
+            Log::GetLog()->error("{}:{}: failed to find 'OfflineImmunitySeconds' key in 'CrashGuard' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ris_it = crashguard_it->find("ReconnectImmunitySeconds"); ris_it != crashguard_it->cend()) {
             if(ris_it->type() != json::value_t::number_unsigned) {
-                Log::GetLog()->error("'ReconnectImmunitySeconds' value in 'CrashGuard' object isn't an unsigned integer");
+                Log::GetLog()->error("{}:{}: 'ReconnectImmunitySeconds' value in 'CrashGuard' object isn't an unsigned integer", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'ReconnectImmunitySeconds' key in 'CrashGuard' object");
+            Log::GetLog()->error("{}:{}: failed to find 'ReconnectImmunitySeconds' key in 'CrashGuard' object", __func__, __LINE__);
             return false;
         }
     }
     else {
-        Log::GetLog()->error("Failed to find 'CrashGuard' key in json config");
+        Log::GetLog()->error("{}:{}: failed to find 'CrashGuard' key in json config", __func__, __LINE__);
         return false;
     }
 
     if(const auto players_it = config.find("Players"); players_it != config.cend()) {
         if(players_it->type() != json::value_t::object) {
-            Log::GetLog()->error("'Players' value in json config isn't a valid object");
+            Log::GetLog()->error("{}:{}: 'Players' value in json config isn't a valid object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ddd_it = players_it->find("DeadDinoDragging"); ddd_it != players_it->cend()) {
             if(ddd_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'DeadDinoDragging' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'DeadDinoDragging' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadDinoDragging' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadDinoDragging' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto ddi_it = players_it->find("DeadDinoInventory"); ddi_it != players_it->cend()) {
             if(ddi_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'DeadDinoInventory' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'DeadDinoInventory' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadDinoInventory' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadDinoInventory' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto dpd_it = players_it->find("DeadPlayerDragging"); dpd_it != players_it->cend()) {
             if(dpd_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'DeadPlayerDragging' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'DeadPlayerDragging' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadPlayerDragging' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadPlayerDragging' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto dpi_it = players_it->find("DeadPlayerInventory"); dpi_it != players_it->cend()) {
             if(dpi_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'DeadPlayerInventory' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'DeadPlayerInventory' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'DeadPlayerInventory' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'DeadPlayerInventory' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto opd_it = players_it->find("OfflinePlayerDragging"); opd_it != players_it->cend()) {
             if(opd_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'OfflinePlayerDragging' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'OfflinePlayerDragging' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'OfflinePlayerDragging' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'OfflinePlayerDragging' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto opi_it = players_it->find("OfflinePlayerInventory"); opi_it != players_it->cend()) {
             if(opi_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'OfflinePlayerInventory' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'OfflinePlayerInventory' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'OfflinePlayerInventory' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'OfflinePlayerInventory' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto tpd_it = players_it->find("TranqdPlayerDragging"); tpd_it != players_it->cend()) {
             if(tpd_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'TranqdPlayerDragging' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'TranqdPlayerDragging' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'TranqdPlayerDragging' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'TranqdPlayerDragging' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
         if(const auto tpi_it = players_it->find("TranqdPlayerInventory"); tpi_it != players_it->cend()) {
             if(tpi_it->type() != json::value_t::string) {
-                Log::GetLog()->error("'TranqdPlayerInventory' value in 'Players' object isn't a valid string");
+                Log::GetLog()->error("{}:{}: 'TranqdPlayerInventory' value in 'Players' object isn't a valid string", __func__, __LINE__);
                 return false;
             }
         }
         else {
-            Log::GetLog()->error("Failed to find 'TranqdPlayerInventory' key in 'Players' object");
+            Log::GetLog()->error("{}:{}: failed to find 'TranqdPlayerInventory' key in 'Players' object", __func__, __LINE__);
             return false;
         }
 
-        AccessLevel access_level;
-
         for(auto& e : players_it->items()) {
             const auto access_str = e.value().get<std::string>();
+            const auto access_level_opt = GetAccessLevelFromString(access_str);
 
-            if(StringToAccessLevel(access_str, access_level) == false) {
-                Log::GetLog()->error("IsValid: failed to translate from '{}' to access level for key '{}'", access_str, e.key());
+            if(access_level_opt.has_value() == false) {
+                Log::GetLog()->error("{}:{}: failed to get access level for key '{}' with value '{}'", __func__, __LINE__, e.key(), access_str);
                 return false;
             }
         }
     }
     else {
-        Log::GetLog()->error("Failed to find 'Players' key in json config");
+        Log::GetLog()->error("{}:{}: failed to find 'Players' key in json config", __func__, __LINE__);
         return false;
     }
 

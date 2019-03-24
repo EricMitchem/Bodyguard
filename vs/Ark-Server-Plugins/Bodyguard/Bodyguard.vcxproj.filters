@@ -28,6 +28,12 @@
     <ClCompile Include="..\..\..\source\Bodyguard\config.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Bodyguard\bodydragging.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\Bodyguard\inventoryaccess.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\resources\Bodyguard\PluginInfo.json">
@@ -51,6 +57,12 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\Bodyguard\config.hpp">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\Bodyguard\bodydragging.hpp">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

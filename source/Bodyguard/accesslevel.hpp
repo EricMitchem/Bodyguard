@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 enum class AccessLevel
@@ -12,5 +13,5 @@ enum class AccessLevel
     All
 };
 
-std::string AccessLevelToString(AccessLevel access_level);
-bool StringToAccessLevel(const std::string& ascii_string, AccessLevel& access_level);
+std::string GetStringFromAccessLevel(AccessLevel access_level);
+std::optional<AccessLevel> GetAccessLevelFromString(const std::string& ascii_string);
