@@ -8,7 +8,6 @@
 #include "inventoryaccess.hpp"
 
 // To Do:
-// - Exception safety
 // - Crash protection branch
 // - RCON
 

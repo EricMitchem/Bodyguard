@@ -236,7 +236,13 @@ bool Config::ReadFromFile()
     else {
         json config;
 
-        in_file >> config;
+        try {
+            in_file >> config;
+        }
+        catch(json::parse_error& e) {
+            Log::GetLog()->error("{}:{}: Exception:{}: {}", __func__, __LINE__, e.id, e.what());
+            return false;
+        }
 
         if(IsValid(config)) {
             Config::Impl = config;
@@ -256,8 +262,14 @@ bool Config::WriteDefaultConfigToFile()
     std::ofstream out_file(config_path);
 
     if(out_file.is_open() == true) {
-        out_file << std::setw(4) << Config::Default;
-        return true;
+        try {
+            out_file << std::setw(4) << Config::Default;
+            return true;
+        }
+        catch(json::type_error& e) {
+            Log::GetLog()->error("{}:{}: Exception:{}: {}", __func__, __LINE__, e.id, e.what());
+            return false;
+        }
     }
     else {
         Log::GetLog()->error("{}:{}: failed to open '{}' for writing", __func__, __LINE__, config_path);
