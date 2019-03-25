@@ -55,5 +55,7 @@ bool IsOnPlayerTeam(AActor* actor)
         return false;
     }
 
-    return actor->TargetingTeamField() >= 50000;
+    // Conflicting information as to whether this should be 10000 or 50000.
+    // I've seen more evidence of 10000; so, I'm using that.
+    return actor->TargetingTeamField() >= 10000;
 }

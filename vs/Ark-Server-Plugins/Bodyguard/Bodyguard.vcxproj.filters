@@ -42,6 +42,9 @@
     <None Include="..\..\..\resources\Bodyguard\config.json">
       <Filter>resources</Filter>
     </None>
+    <None Include="..\..\..\resources\Bodyguard\deploy.bat">
+      <Filter>resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\Bodyguard\accesslevel.hpp">
@@ -65,5 +68,10 @@
     <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp">
       <Filter>source</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\resources\Bodyguard\readme.txt">
+      <Filter>resources</Filter>
+    </Text>
   </ItemGroup>
 </Project>

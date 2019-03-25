@@ -1,6 +1,6 @@
 {
   "FullName":"Bodyguard",
-  "Description":"Control the dragging and inventory access of players and dinos",
-  "Version":0.1,
+  "Description":"Protects players from some forms of griefing. See readme.txt",
+  "Version":1.0,
   "MinApiVersion":3.0
 }

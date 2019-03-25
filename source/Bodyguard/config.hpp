@@ -42,8 +42,9 @@ public:
     static Var GetVarForInventory(const CharacterType& type);
     static std::optional<AccessLevel> GetAccessLevelForVar(Var var);
     static std::optional<bool> GetBoolForAdminVar(Var var);
-    static void ReadFromFile();
-    static void WriteDefaultConfigToFile();
+    static std::string GetConfigPath();
+    static bool ReadFromFile();
+    static bool WriteDefaultConfigToFile();
 
 private:
     static const json Default;

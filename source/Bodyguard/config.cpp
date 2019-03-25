@@ -1,5 +1,6 @@
 // Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
 
+#include <any>
 #include <fstream>
 #include <iomanip>
 #include "API/ARK/Ark.h"
@@ -50,6 +51,10 @@ Config::Var Config::GetAdminVarForDragging(const CharacterType& type)
 
     case CharacterType::TranqdPlayer:
         return Var::Admins_TranqdPlayerDragging;
+
+    default:
+        // C4715
+        return std::any_cast<Config::Var>((Config::Var*) nullptr);
     }
 }
 
@@ -67,6 +72,10 @@ Config::Var Config::GetAdminVarForInventory(const CharacterType& type)
 
     case CharacterType::TranqdPlayer:
         return Var::Admins_TranqdPlayerInventory;
+
+    default:
+        // C4715
+        return std::any_cast<Config::Var>((Config::Var*) nullptr);
     }
 }
 
@@ -84,6 +93,10 @@ Config::Var Config::GetVarForDragging(const CharacterType& type)
 
     case CharacterType::TranqdPlayer:
         return Var::Players_TranqdPlayerDragging;
+
+    default:
+        // C4715
+        return std::any_cast<Config::Var>((Config::Var*) nullptr);
     }
 }
 
@@ -101,6 +114,10 @@ Config::Var Config::GetVarForInventory(const CharacterType& type)
 
     case CharacterType::TranqdPlayer:
         return Var::Players_TranqdPlayerInventory;
+
+    default:
+        // C4715
+        return std::any_cast<Config::Var>((Config::Var*) nullptr);
     }
 }
 
@@ -201,15 +218,20 @@ std::optional<bool> Config::GetBoolForAdminVar(Config::Var var)
     return Config::Impl["Admins"][var_str].get<bool>();
 }
 
-void Config::ReadFromFile()
+std::string Config::GetConfigPath()
 {
-    const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Bodyguard/config.json";
+    return ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Bodyguard/config.json";
+}
+
+bool Config::ReadFromFile()
+{
+    const auto config_path = GetConfigPath();
     std::ifstream in_file(config_path);
 
     if(in_file.is_open() == false) {
-        Log::GetLog()->error("{}:{}: couldn't open config.json. Using default config", __func__, __LINE__);
-
+        Log::GetLog()->error("{}:{}: failed to open '{}'. Using default config", __func__, __LINE__, config_path);
         Config::Impl = Config::Default;
+        return false;
     }
     else {
         json config;
@@ -218,24 +240,28 @@ void Config::ReadFromFile()
 
         if(IsValid(config)) {
             Config::Impl = config;
+            return true;
         }
         else {
             Log::GetLog()->error("{}:{}: config failed validation. Using default config", __func__, __LINE__);
             Config::Impl = Config::Default;
+            return false;
         }
     }
 }
 
-void Config::WriteDefaultConfigToFile()
+bool Config::WriteDefaultConfigToFile()
 {
-    const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Bodyguard/config.json";
+    const auto config_path = GetConfigPath();
     std::ofstream out_file(config_path);
 
     if(out_file.is_open() == true) {
         out_file << std::setw(4) << Config::Default;
+        return true;
     }
     else {
-        Log::GetLog()->error("{}:{}: failed to open config file for writing", __func__, __LINE__);
+        Log::GetLog()->error("{}:{}: failed to open '{}' for writing", __func__, __LINE__, config_path);
+        return false;
     }
 }
 
