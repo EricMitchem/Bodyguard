@@ -37,6 +37,38 @@ const json Config::Default = {
 
 json Config::Impl = Config::Default;
 
+bool Config::Load()
+{
+    ArkApi::GetCommands().AddConsoleCommand("Bodyguard.ReloadConfig", &Config::Cmd_ReloadConfig);
+    ArkApi::GetCommands().AddConsoleCommand("Bodyguard.WriteDefaultConfigToFile", &Config::Cmd_WriteDefaultConfigToFile);
+
+    ReadFromFile();
+    
+    return true;
+}
+
+bool Config::Unload()
+{
+    bool result = true;
+    bool success;
+
+    success = ArkApi::GetCommands().RemoveConsoleCommand("Bodyguard.ReloadConfig");
+    
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to remove console command: Bodyguard.ReloadConfig", __func__, __LINE__);
+        result = false;
+    }
+    
+    success = ArkApi::GetCommands().RemoveConsoleCommand("Bodyguard.WriteDefaultConfigToFile");
+
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to remove console command: Bodyguard.WriteDefaultConfigToFile", __func__, __LINE__);
+        result = false;
+    }
+
+    return result;
+}
+
 Config::Var Config::GetAdminVarForDragging(const CharacterType& type)
 {
     switch(type) {
@@ -218,6 +250,48 @@ std::optional<bool> Config::GetBoolForAdminVar(Config::Var var)
     return Config::Impl["Admins"][var_str].get<bool>();
 }
 
+std::optional<bool> Config::GetBoolForCrashGuardVar(Config::Var var)
+{
+    std::string var_str;
+
+    switch(var) {
+    case Var::CrashGuard_Enable:
+        var_str = "Enable";
+        break;
+
+    case Var::CrashGuard_PermanentImmunity:
+        var_str = "PermanentImmunity";
+        break;
+
+    default:
+        Log::GetLog()->error("{}:{}: invalid config var", __func__, __LINE__);
+        return std::nullopt;
+    }
+
+    return Config::Impl["CrashGuard"][var_str].get<bool>();
+}
+
+std::optional<unsigned int> Config::GetUintForCrashGuardVar(Config::Var var)
+{
+    std::string var_str;
+
+    switch(var) {
+    case Var::CrashGuard_OfflineImmunitySeconds:
+        var_str = "OfflineImmunitySeconds";
+        break;
+
+    case Var::CrashGuard_ReconnectImmunitySeconds:
+        var_str = "ReconnectImmunitySeconds";
+        break;
+
+    default:
+        Log::GetLog()->error("{}:{}: invalid config var", __func__, __LINE__);
+        return std::nullopt;
+    }
+
+    return Config::Impl["CrashGuard"][var_str].get<unsigned int>();
+}
+
 std::string Config::GetConfigPath()
 {
     return ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Bodyguard/config.json";
@@ -274,6 +348,42 @@ bool Config::WriteDefaultConfigToFile()
     else {
         Log::GetLog()->error("{}:{}: failed to open '{}' for writing", __func__, __LINE__, config_path);
         return false;
+    }
+}
+
+void Config::Cmd_ReloadConfig(APlayerController* _pc, FString* message, bool log)
+{
+    if(_pc == nullptr) {
+        Log::GetLog()->error("{}:{}: APlayerController is null", __func__, __LINE__);
+        return;
+    }
+
+    bool success = Config::ReadFromFile();
+    const auto pc = static_cast<AShooterPlayerController*>(_pc);
+
+    if(success == true) {
+        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Green, "Config reloaded");
+    }
+    else {
+        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Red, "Failed to reload config");
+    }
+}
+
+void Config::Cmd_WriteDefaultConfigToFile(APlayerController* _pc, FString* message, bool log)
+{
+    if(_pc == nullptr) {
+        Log::GetLog()->error("{}:{}: APlayerController is null", __func__, __LINE__);
+        return;
+    }
+
+    bool success = Config::WriteDefaultConfigToFile();
+    const auto pc = static_cast<AShooterPlayerController*>(_pc);
+
+    if(success == true) {
+        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Green, "Default config written to file");
+    }
+    else {
+        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Red, "Failed to write default config to file");
     }
 }
 

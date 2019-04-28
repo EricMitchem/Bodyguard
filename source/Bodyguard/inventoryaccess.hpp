@@ -9,5 +9,7 @@ DECLARE_HOOK(UPrimalInventoryComponent_RemoteInventoryAllowViewing, bool, UPrima
 class InventoryAccess
 {
 public:
+    static bool Load();
+    static bool Unload();
     static bool Hook_UPrimalInventoryComponent_RemoteInventoryAllowViewing(UPrimalInventoryComponent* _this, AShooterPlayerController* pc);
 };

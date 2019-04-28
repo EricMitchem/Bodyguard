@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "API/ARK/Ark.h"
+
 struct AActor;
 struct APrimalCharacter;
 struct APrimalDinoCharacter;
@@ -14,3 +16,4 @@ APrimalCharacter* AsCharacter(AActor* actor);
 APrimalDinoCharacter* AsDino(AActor* actor);
 AShooterCharacter* AsPlayer(AActor* actor);
 bool IsOnPlayerTeam(AActor* actor);
+//bool GetPlayerName(AShooterCharacter* player, FString& name);

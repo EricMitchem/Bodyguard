@@ -13,8 +13,8 @@
     "CrashGuard": {
         "Enable": true,
         "PermanentImmunity": false,
-        "OfflineImmunitySeconds": 1200,
-        "ReconnectImmunitySeconds": 300
+        "OfflineImmunitySeconds": 900,
+        "ReconnectImmunitySeconds": 180
     },
 	
 	"Players" : {

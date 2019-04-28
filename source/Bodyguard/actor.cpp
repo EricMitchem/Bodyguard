@@ -59,3 +59,24 @@ bool IsOnPlayerTeam(AActor* actor)
     // I've seen more evidence of 10000; so, I'm using that.
     return actor->TargetingTeamField() >= 10000;
 }
+
+bool GetPlayerName(AShooterCharacter* player, FString& name)
+{
+    name = "Player";
+    const auto player_data = player->GetPlayerData();
+
+    if(player_data == nullptr) {
+        Log::GetLog()->error("{}:{}: failed to get UPrimalPlayerData from AShooterCharacter", __func__, __LINE__);
+        return false;
+    }
+
+    const auto player_state = player_data->GetPlayerState(nullptr, true);
+
+    if(player_state == nullptr) {
+        Log::GetLog()->error("{}:{}: failed to get AShooterPlayerState from UPrimalPlayerData", __func__, __LINE__);
+        return false;
+    }
+
+    player_state->GetPlayerName(&name);
+    return true;
+}

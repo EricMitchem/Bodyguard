@@ -34,6 +34,9 @@
     <ClCompile Include="..\..\..\source\Bodyguard\inventoryaccess.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Bodyguard\crashguard.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\resources\Bodyguard\PluginInfo.json">
@@ -66,6 +69,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\Bodyguard\crashguard.hpp">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,91 +5,67 @@
 #include "API/ARK/Ark.h"
 #include "bodydragging.hpp"
 #include "config.hpp"
+#include "crashguard.hpp"
 #include "inventoryaccess.hpp"
 
 // To Do:
-// - Crash protection branch
 // - RCON
-
-void Cmd_ReloadConfig(APlayerController* _pc, FString* message, bool log)
-{
-    bool success = Config::ReadFromFile();
-    const auto pc = static_cast<AShooterPlayerController*>(_pc);
-
-    if(success == true) {
-        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Green, "Config reloaded");
-    }
-    else {
-        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Red, "Failed to reload config");
-    }
-}
-
-void Cmd_WriteDefaultConfigToFile(APlayerController* _pc, FString* message, bool log)
-{
-    bool success = Config::WriteDefaultConfigToFile();
-    const auto pc = static_cast<AShooterPlayerController*>(_pc);
-
-    if(success == true) {
-        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Green, "Default config written to file");
-    }
-    else {
-        ArkApi::GetApiUtils().SendServerMessage(pc, FColorList::Red, "Failed to write default config to file");
-    }
-}
 
 void Load()
 {
     Log::Get().Init("Bodyguard");
-    Config::ReadFromFile();
 
-    ArkApi::GetHooks().SetHook(
-        "APrimalCharacter.CanDragCharacter",
-        &BodyDragging::Hook_APrimalCharacter_CanDragCharacter,
-        &APrimalCharacter_CanDragCharacter_original
-    );
+    if(Config::Load() == false) {
+        Log::GetLog()->error("{}:{}: failed to load config module", __func__, __LINE__);
+        throw;
+    }
 
-    ArkApi::GetHooks().SetHook(
-        "APrimalCharacter.OnBeginDrag",
-        &BodyDragging::Hook_APrimalCharacter_OnBeginDrag,
-        &APrimalCharacter_OnBeginDrag_original
-    );
+    if(BodyDragging::Load() == false) {
+        Log::GetLog()->error("{}:{}: failed to load body dragging module", __func__, __LINE__);
+        throw;
+    }
 
-    ArkApi::GetHooks().SetHook(
-        "UPrimalInventoryComponent.RemoteInventoryAllowViewing",
-        &InventoryAccess::Hook_UPrimalInventoryComponent_RemoteInventoryAllowViewing,
-        &UPrimalInventoryComponent_RemoteInventoryAllowViewing_original
-    );
+    if(InventoryAccess::Load() == false) {
+        Log::GetLog()->error("{}:{}: failed to load inventory access module", __func__, __LINE__);
+        throw;
+    }
 
-    ArkApi::GetCommands().AddConsoleCommand("Bodyguard.ReloadConfig", &Cmd_ReloadConfig);
-    ArkApi::GetCommands().AddConsoleCommand("Bodyguard.WriteDefaultConfigToFile", &Cmd_WriteDefaultConfigToFile);
+    // Requires Config
+    if(CrashGuard::Load() == false) {
+        Log::GetLog()->error("{}:{}: failed to load crash guard module", __func__, __LINE__);
+        throw;
+    }
 }
 
 void Unload()
 {
-    ArkApi::GetHooks().DisableHook(
-        "APrimalCharacter.CanDragCharacter",
-        &BodyDragging::Hook_APrimalCharacter_CanDragCharacter
-    );
+    if(CrashGuard::Unload() == false) {
+        Log::GetLog()->error("{}:{}: failed to unload crash guard module", __func__, __LINE__);
+    }
 
-    ArkApi::GetHooks().DisableHook(
-        "APrimalCharacter.OnBeginDrag",
-        &BodyDragging::Hook_APrimalCharacter_OnBeginDrag
-    );
+    if(InventoryAccess::Unload() == false) {
+        Log::GetLog()->error("{}:{}: failed to unload inventory access module", __func__, __LINE__);
+    }
 
-    ArkApi::GetHooks().DisableHook(
-        "UPrimalInventoryComponent.RemoteInventoryAllowViewing",
-        &InventoryAccess::Hook_UPrimalInventoryComponent_RemoteInventoryAllowViewing
-    );
+    if(BodyDragging::Unload() == false) {
+        Log::GetLog()->error("{}:{}: failed to unload body dragging module", __func__, __LINE__);
+    }
 
-    ArkApi::GetCommands().RemoveConsoleCommand("Bodyguard.ReloadConfig");
-    ArkApi::GetCommands().RemoveConsoleCommand("Bodyguard.WriteDefaultConfigToFile");
+    if(Config::Unload() == false) {
+        Log::GetLog()->error("{}:{}: failed to unload config module", __func__, __LINE__);
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID reserved)
 {
     switch(reason) {
     case DLL_PROCESS_ATTACH:
-        Load();
+        try {
+            Load();
+        }
+        catch(...) {
+            return FALSE;
+        }
         break;
 
     case DLL_PROCESS_DETACH:

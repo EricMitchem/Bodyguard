@@ -7,19 +7,90 @@
 #include "charactertype.hpp"
 #include "config.hpp"
 
+bool BodyDragging::Load()
+{
+    bool success;
+    
+    success = ArkApi::GetHooks().SetHook(
+        "APrimalCharacter.CanDragCharacter",
+        &Hook_APrimalCharacter_CanDragCharacter,
+        &APrimalCharacter_CanDragCharacter_original
+    );
+
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to set hook: APrimalCharacter.CanDragCharacter", __func__, __LINE__);
+        return false;
+    }
+
+    success = ArkApi::GetHooks().SetHook(
+        "APrimalCharacter.OnBeginDrag",
+        &Hook_APrimalCharacter_OnBeginDrag,
+        &APrimalCharacter_OnBeginDrag_original
+    );
+
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to set hook: APrimalCharacter.OnBeginDrag", __func__, __LINE__);
+        return false;
+    }
+
+    return true;
+}
+
+bool BodyDragging::Unload()
+{
+    bool result = true;
+    bool success;
+
+    success = ArkApi::GetHooks().DisableHook(
+        "APrimalCharacter.CanDragCharacter",
+        &Hook_APrimalCharacter_CanDragCharacter
+    );
+
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to disable hook: APrimalCharacter.CanDragCharacter", __func__, __LINE__);
+        result = false;
+    }
+
+    success = ArkApi::GetHooks().DisableHook(
+        "APrimalCharacter.OnBeginDrag",
+        &Hook_APrimalCharacter_OnBeginDrag
+    );
+
+    if(success == false) {
+        Log::GetLog()->error("{}:{}: failed to disable hook: APrimalCharacter.OnBeginDrag", __func__, __LINE__);
+        result = false;
+    }
+
+    return result;
+}
+
 bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* actor, APrimalCharacter* subject)
 {
-    const auto original_fn = std::bind(APrimalCharacter_CanDragCharacter_original, actor, subject);
+    const bool original_fn_result = APrimalCharacter_CanDragCharacter_original(actor, subject);
+
+    if(original_fn_result == false) {
+        return original_fn_result;
+    }
+
+    if(actor == nullptr) {
+        Log::GetLog()->error("{}:{}: actor is null", __func__, __LINE__);
+        return original_fn_result;
+    }
+
+    if(subject == nullptr) {
+        Log::GetLog()->error("{}:{}: subject is null", __func__, __LINE__);
+        return original_fn_result;
+    }
 
     if(IsOnPlayerTeam(actor) == false || IsOnPlayerTeam(subject) == false) {
-        return original_fn();
+        return original_fn_result;
     }
 
     const auto subject_type_opt = GetCharacterType(subject);
 
     if(subject_type_opt.has_value() == false) {
         Log::GetLog()->error("{}:{}: failed to get character type for subject", __func__, __LINE__);
-        return original_fn();
+        return original_fn_result;
     }
 
     AShooterCharacter* actual_actor;
@@ -32,12 +103,12 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
 
         if(actual_actor == nullptr) {
             Log::GetLog()->error("{}:{}: failed to get rider for dino actor", __func__, __LINE__);
-            return original_fn();
+            return original_fn_result;
         }
     }
     else {
-        Log::GetLog()->error("{}:{}: actor isn't a player or dino", __func__, __LINE__);
-        return original_fn();
+        Log::GetLog()->warn("{}:{}: actor isn't a player or dino", __func__, __LINE__);
+        return original_fn_result;
     }
 
     if(actual_actor->bIsServerAdminField() == true) {
@@ -46,11 +117,11 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
 
         if(admin_override_opt.has_value() == false) {
             Log::GetLog()->error("{}:{}: failed to get bool for admin config var", __func__, __LINE__);
-            return original_fn();
+            return original_fn_result;
         }
 
         if(admin_override_opt.value() == true) {
-            return original_fn();
+            return original_fn_result;
         }
     }
 
@@ -59,29 +130,29 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
 
     if(access_level_opt.has_value() == false) {
         Log::GetLog()->error("{}:{}: failed to get access level for config var", __func__, __LINE__);
-        return original_fn();
+        return original_fn_result;
     }
 
     const auto relation_opt = GetPlayerSubjectRelation(actual_actor, subject);
 
     if(relation_opt.has_value() == false) {
         Log::GetLog()->error("{}:{}: failed to get player-subject relation", __func__, __LINE__);
-        return original_fn();
+        return original_fn_result;
     }
 
     switch(*access_level_opt) {
     case AccessLevel::Owner:
-        return relation_opt->is_owner && original_fn();
+        return relation_opt->is_owner;
 
     case AccessLevel::Tribe:
-        return (relation_opt->is_owner || relation_opt->is_tribe) && original_fn();
+        return relation_opt->is_owner || relation_opt->is_tribe;
 
     case AccessLevel::Alliance:
-        return (relation_opt->is_owner || relation_opt->is_tribe || relation_opt->is_alliance) && original_fn();
+        return relation_opt->is_owner || relation_opt->is_tribe || relation_opt->is_alliance;
 
     case AccessLevel::All:
     default:
-        return original_fn();
+        return original_fn_result;
     }
 }
 
@@ -90,6 +161,16 @@ void BodyDragging::Hook_APrimalCharacter_OnBeginDrag(APrimalCharacter* actor, AP
     const auto original_fn = std::bind(APrimalCharacter_OnBeginDrag_original, actor, subject, bone_idx, grap_hook);
 
     if(grap_hook == false) {
+        return original_fn();
+    }
+
+    if(actor == nullptr) {
+        Log::GetLog()->error("{}:{}: actor is null", __func__, __LINE__);
+        return original_fn();
+    }
+
+    if(subject == nullptr) {
+        Log::GetLog()->error("{}:{}: subject is null", __func__, __LINE__);
         return original_fn();
     }
 
@@ -105,7 +186,7 @@ void BodyDragging::Hook_APrimalCharacter_OnBeginDrag(APrimalCharacter* actor, AP
     }
 
     if(IsPlayer(actor) == false) {
-        Log::GetLog()->warn("{}:{}: non-player actor using grappling hook. Using default implementation", __func__, __LINE__);
+        Log::GetLog()->warn("{}:{}: non-player actor using grappling hook", __func__, __LINE__);
         return original_fn();
     }
 

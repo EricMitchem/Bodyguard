@@ -1,6 +1,6 @@
 {
   "FullName":"Bodyguard",
-  "Description":"Protects players from some forms of griefing. See readme.txt",
+  "Description":"Partially protects players from griefing and crashing. See readme.txt",
   "Version":1.0,
   "MinApiVersion":3.0
 }

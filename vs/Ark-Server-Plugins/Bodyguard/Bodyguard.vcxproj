@@ -141,6 +141,7 @@
     <ClCompile Include="..\..\..\source\Bodyguard\characterrelation.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\charactertype.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\config.cpp" />
+    <ClCompile Include="..\..\..\source\Bodyguard\crashguard.cpp" />
     <ClCompile Include="..\..\..\source\Bodyguard\inventoryaccess.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +156,7 @@
     <ClInclude Include="..\..\..\source\Bodyguard\characterrelation.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\charactertype.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\config.hpp" />
+    <ClInclude Include="..\..\..\source\Bodyguard\crashguard.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp" />
   </ItemGroup>
   <ItemGroup>
