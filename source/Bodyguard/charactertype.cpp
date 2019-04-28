@@ -26,7 +26,6 @@ std::optional<CharacterType> GetCharacterType(APrimalCharacter* subject)
             subject_type = CharacterType::TranqdPlayer;
         }
         else {
-            // Player isn't dead, offline, or tranqd
             return std::nullopt;
         }
     }
@@ -37,7 +36,6 @@ std::optional<CharacterType> GetCharacterType(APrimalCharacter* subject)
             subject_type = CharacterType::DeadDino;
         }
         else {
-            Log::GetLog()->error("{}:{}: dino isn't dead", __func__, __LINE__);
             return std::nullopt;
         }
     }
