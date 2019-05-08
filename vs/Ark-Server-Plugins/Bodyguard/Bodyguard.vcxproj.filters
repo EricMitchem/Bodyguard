@@ -74,6 +74,9 @@
     <ClInclude Include="..\..\..\source\Bodyguard\crashguard.hpp">
       <Filter>source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\Bodyguard\hooks.hpp">
+      <Filter>source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\resources\Bodyguard\readme.txt">

@@ -157,6 +157,7 @@
     <ClInclude Include="..\..\..\source\Bodyguard\charactertype.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\config.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\crashguard.hpp" />
+    <ClInclude Include="..\..\..\source\Bodyguard\hooks.hpp" />
     <ClInclude Include="..\..\..\source\Bodyguard\inventoryaccess.hpp" />
   </ItemGroup>
   <ItemGroup>

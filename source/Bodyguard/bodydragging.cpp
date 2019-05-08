@@ -6,6 +6,7 @@
 #include "characterrelation.hpp"
 #include "charactertype.hpp"
 #include "config.hpp"
+#include "hooks.hpp"
 
 bool BodyDragging::Load()
 {
@@ -68,10 +69,6 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
 {
     const bool original_fn_result = APrimalCharacter_CanDragCharacter_original(actor, subject);
 
-    if(original_fn_result == false) {
-        return original_fn_result;
-    }
-
     if(actor == nullptr) {
         Log::GetLog()->error("{}:{}: actor is null", __func__, __LINE__);
         return original_fn_result;
@@ -89,7 +86,6 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
     const auto subject_type_opt = GetCharacterType(subject);
 
     if(subject_type_opt.has_value() == false) {
-        Log::GetLog()->error("{}:{}: failed to get character type for subject", __func__, __LINE__);
         return original_fn_result;
     }
 
@@ -121,8 +117,13 @@ bool BodyDragging::Hook_APrimalCharacter_CanDragCharacter(APrimalCharacter* acto
         }
 
         if(admin_override_opt.value() == true) {
-            return original_fn_result;
+            return true;
         }
+    }
+    
+    // Respect Ark's default behavior if not an admin with override enabled
+    if(original_fn_result == false) {
+        return original_fn_result;
     }
 
     Config::Var config_var = Config::GetVarForDragging(*subject_type_opt);
@@ -181,7 +182,6 @@ void BodyDragging::Hook_APrimalCharacter_OnBeginDrag(APrimalCharacter* actor, AP
     const auto subject_type_opt = GetCharacterType(subject);
 
     if(subject_type_opt.has_value() == false) {
-        Log::GetLog()->error("{}:{}: failed to get character type for subject", __func__, __LINE__);
         return original_fn();
     }
 

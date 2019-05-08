@@ -3,6 +3,7 @@
 #include "actor.hpp"
 #include "config.hpp"
 #include "crashguard.hpp"
+#include "hooks.hpp"
 
 CrashGuard::HookJoinImpl CrashGuard::Hook_Join_Impl;
 CrashGuard::HookLeaveImpl CrashGuard::Hook_Leave_Impl;

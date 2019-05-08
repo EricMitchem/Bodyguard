@@ -4,9 +4,6 @@
 
 #include "API/ARK/Ark.h"
 
-DECLARE_HOOK(APrimalCharacter_CanDragCharacter, bool, APrimalCharacter*, APrimalCharacter*);
-DECLARE_HOOK(APrimalCharacter_OnBeginDrag, void, APrimalCharacter*, APrimalCharacter*, int, bool);
-
 class BodyDragging
 {
 public:

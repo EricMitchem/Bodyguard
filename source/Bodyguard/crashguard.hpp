@@ -9,10 +9,8 @@
 #include <unordered_set>
 #include "API/ARK/Ark.h"
 
-DECLARE_HOOK(AShooterGameMode_StartNewShooterPlayer, void, AShooterGameMode*, APlayerController*, bool, bool, FPrimalPlayerCharacterConfigStruct*, UPrimalPlayerData*);
-DECLARE_HOOK(AShooterCharacter_ControllerLeavingGame, void, AShooterCharacter*, AShooterPlayerController*);
-DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEvent*, AController*, AActor*);
-DECLARE_HOOK(AShooterCharacter_Destroyed, void, AShooterCharacter*);
+// Functions of interest
+//void ReceiveAnyDamage(float Damage, UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser) { NativeCall<void, float, UDamageType *, AController *, AActor *>(this, "AActor.ReceiveAnyDamage", Damage, DamageType, InstigatedBy, DamageCauser); }
 
 class CrashGuard
 {
