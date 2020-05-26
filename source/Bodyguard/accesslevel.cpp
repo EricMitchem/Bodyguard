@@ -1,5 +1,3 @@
-// Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
-
 #include <algorithm>
 #include <cctype>
 #include <map>

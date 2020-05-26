@@ -1,5 +1,3 @@
-// Copyright (C) 2019 Eric Mitchem <ericmitchem@gmail.com>. All Rights Reserved.
-
 #pragma comment(lib, "ArkApi.lib")
 
 #include "API/ARK/Ark.h"
